@@ -2,11 +2,10 @@
 
 
 # Instructions
-
-Open and run final-project.ipynb after downloading and extracting the zip below.
+Clone the project and open and run final-project.ipynb after downloading and extracting the zip below.
 
 ## Dataset
-Please download data.zip [here](https://fs.a0-0.com/cs254a-final-project/data/data.zip) and extract the contents to a new folder called "data" inside this project folder.
+Download data.zip [here](https://fs.a0-0.com/cs254a-final-project/data/data.zip) and extract it to the cloned project folder.
 
 
 # Reports
