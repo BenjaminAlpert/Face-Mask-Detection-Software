@@ -9,8 +9,8 @@ Download data.zip [here](https://fs.a0-0.com/cs254a-final-project/data/data.zip)
 
 ## Shrink to 50 x 50
 
-Install [ImageMagick](https://imagemagick.org/index.php)
-```convert -resize 50x50\! input.jpg output.jpg```
+1. Install [ImageMagick](https://imagemagick.org/index.php).
+2. Run ```convert -resize 50x50\! input.jpg output.jpg```.
 
 
 # Reports
