@@ -13,7 +13,7 @@ import time
 
 models = {}
 histories = {}
-class_names = ["Access Granted","Access Denied", "Access Denied","Access Denied"]
+class_names = ["Access Granted", "Access Denied", "Access Denied", "Access Denied"]
 for name in ["CNN", "MLP"]:
     model_path = "saved_models/"+name+".h5"
     history_path = "saved_histories/"+name+".json"
@@ -39,7 +39,7 @@ def add_text(img, text, center_pos, text_color):
     cv2.putText(img, text, (x, y + text_height + font_scale - 1), font, font_scale, text_color, font_thickness)
 
 def take_picture():
-    cam = cv2.VideoCapture(0)
+    cam = cv2.VideoCapture(4)
 
     cv2.namedWindow("Take a Picture")
 
@@ -57,7 +57,8 @@ def take_picture():
             break
         elif k%256 == 32:
             # SPACE pressed
-            cv2.imwrite("faces/temp.jpg", frame)
+            img = cv2.resize(frame, (50,50))
+            cv2.imwrite("faces/temp.jpg", img)
             access, text = predict()
             text_color = (0,0,255)
             if(access):
@@ -83,12 +84,10 @@ def predict():
         predictions = model.predict(img_array)
         score = tf.nn.softmax(predictions[0])
 
-        print("{} predicts {} ({:.2f}% confidence)".format(name, class_names[np.argmax(score)], 100 * np.max(score)))
+        print("{} predicts {} ({:.2f}% confidence)".format(name, np.argmax(score), 100 * np.max(score)))
         if(name == "CNN"):
             out = class_names[np.argmax(score)]
-            access = (np.argmax(score) < 3)
-            print(np.argmax(score))
-    print(access, out)
+            access = (np.argmax(score) == 0)
     return access, out
 
 take_picture()
