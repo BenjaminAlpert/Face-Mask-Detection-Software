@@ -61,7 +61,7 @@ def take_picture():
             access, text = predict()
             text_color = (0,0,255)
             if(access):
-                text_color = (255,0,0)
+                text_color = (0,255,0)
             add_text(frame, text, (int(cam.get(3)/2), int(cam.get(4)/2)), text_color)
             cv2.imshow("Take a Picture", frame)
             cv2.waitKey(0)
@@ -83,11 +83,12 @@ def predict():
         predictions = model.predict(img_array)
         score = tf.nn.softmax(predictions[0])
 
-        print("{} predicts {} ({:.2f}% confidence)\n".format(name, class_names[np.argmax(score)], 100 * np.max(score)))
+        print("{} predicts {} ({:.2f}% confidence)".format(name, class_names[np.argmax(score)], 100 * np.max(score)))
         if(name == "CNN"):
             out = class_names[np.argmax(score)]
-            access = (np.argmax(score) == 1)
-
+            access = (np.argmax(score) < 3)
+            print(np.argmax(score))
+    print(access, out)
     return access, out
 
 take_picture()
