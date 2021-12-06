@@ -39,7 +39,7 @@ def add_text(img, text, center_pos, text_color):
     cv2.putText(img, text, (x, y + text_height + font_scale - 1), font, font_scale, text_color, font_thickness)
 
 def take_picture():
-    cam = cv2.VideoCapture(4)
+    cam = cv2.VideoCapture(0)
 
     cv2.namedWindow("Take a Picture")
 
