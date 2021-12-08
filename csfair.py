@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 
-
 CAM_INDEX=6
-#SCAN_BIAS="access"
-SCAN_BIAS="access"
-SCAN_BIAS_TIME=5	# Number of interations to scan for the SCAN_BIAS
+MIN_CONFIDENCE=0.95
+
 
 
 import tensorflow as tf
@@ -20,7 +18,7 @@ import time
 
 models = {}
 histories = {}
-class_names = ["Wearing Mask Correctly Over Mouth and Nose", "Over Nose, but not Over Mouth", "Under Chin", "No Mask"]
+class_names = ["Wearing Mask Correctly Over Mouth and Nose", "Over Mouth, but not Over Nose", "Not Over Mount or Nose", "No Mask"]
 for name in ["CNN", "MLP"]:
     model_path = "saved_models/"+name+".h5"
     history_path = "saved_histories/"+name+".json"
@@ -65,27 +63,25 @@ def take_picture():
         elif k%256 == 32:
             # SPACE pressed
             access = False
-            text = "Access Denied"
-            for i in range(SCAN_BIAS_TIME):
-                ret, frame = cam.read()
-                img = cv2.resize(frame, (50,50))
-                cv2.imwrite("faces/temp.jpg", img)
-                access = predict()
-                if(access and SCAN_BIAS == "access"):
-                    text = "Access Granted"
-                    break
-                elif(not access and SCAN_BIAS == "deny"):
-                    text = "Access Denied"
-                    break
-                else:
-                    add_text(frame, "Scanning...", (int(cam.get(3)/2), int(cam.get(4)/2)), (255,255,255))
-                    cv2.imshow("Take a Picture", frame)
-                    cv2.waitKey(1)
-                #time.sleep(0.1)
+            confidence = 0.0
 
+            while(confidence <= MIN_CONFIDENCE):
+                ret, frame = cam.read()
+                img = cv2.resize(frame, (150,150))
+                cv2.imwrite("faces/temp.jpg", img)
+
+                access, confidence = predict()
+
+                add_text(frame, "Scanning...", (int(cam.get(3)/2), int(cam.get(4)/2)), (255,255,255))
+                cv2.imshow("Take a Picture", frame)
+                cv2.waitKey(1)
+
+            text = "Access Denied"
             text_color = (0,0,255)
-            if(access and SCAN_BIAS == "access"):
+            if(access):
+                text = "Access Granted"
                 text_color = (0,255,0)
+
             add_text(frame, text, (int(cam.get(3)/2), int(cam.get(4)/2)), text_color)
             cv2.imshow("Take a Picture", frame)
             cv2.waitKey(0)
@@ -94,10 +90,10 @@ def take_picture():
     cv2.destroyAllWindows()
 
 def predict():
-    out = ""
+    out = ()
     access = False
 
-    img = tf.keras.utils.load_img("faces/temp.jpg", target_size=(50, 50))
+    img = tf.keras.utils.load_img("faces/temp.jpg", target_size=(150, 150))
 
     img_array = tf.keras.utils.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)
@@ -107,10 +103,13 @@ def predict():
         predictions = model.predict(img_array)
         score = tf.nn.softmax(predictions[0])
 
-        print("{} predicts {} ({:.2f}% confidence)".format(name, class_names[np.argmax(score)], 100 * np.max(score)))
+        confidence = np.max(score)
+
         if(name == "CNN"):
-            out = class_names[np.argmax(score)]
+            print("{} predicts {} ({:.2f}% confidence)".format(name, class_names[np.argmax(score)], 100 * np.max(score)))
             access = (np.argmax(score) == 0)
-    return access
+            out = access, confidence
+
+    return out
 
 take_picture()
