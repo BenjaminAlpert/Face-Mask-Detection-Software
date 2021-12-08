@@ -1,5 +1,11 @@
 #!/usr/bin/python3
 
+
+
+CAM_INDEX=6
+
+
+
 import tensorflow as tf
 from matplotlib import pyplot
 import numpy as np
@@ -39,7 +45,7 @@ def add_text(img, text, center_pos, text_color):
     cv2.putText(img, text, (x, y + text_height + font_scale - 1), font, font_scale, text_color, font_thickness)
 
 def take_picture():
-    cam = cv2.VideoCapture(0)
+    cam = cv2.VideoCapture(CAM_INDEX)
 
     cv2.namedWindow("Take a Picture")
 
@@ -57,9 +63,22 @@ def take_picture():
             break
         elif k%256 == 32:
             # SPACE pressed
-            img = cv2.resize(frame, (50,50))
-            cv2.imwrite("faces/temp.jpg", img)
-            access, text = predict()
+            access = False
+            text = "Access Denied"
+            for i in range(15):
+                ret, frame = cam.read()
+                img = cv2.resize(frame, (50,50))
+                cv2.imwrite("faces/temp.jpg", img)
+                access, text = predict()
+                if(access):
+                    text = "Access Granted"
+                    break
+                else:
+                    add_text(frame, "Scanning...", (int(cam.get(3)/2), int(cam.get(4)/2)), (255,255,255))
+                    cv2.imshow("Take a Picture", frame)
+                    cv2.waitKey(1)
+                #time.sleep(0.1)
+
             text_color = (0,0,255)
             if(access):
                 text_color = (0,255,0)
