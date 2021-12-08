@@ -68,7 +68,7 @@ def take_picture():
             while(confidence <= MIN_CONFIDENCE):
                 ret, frame = cam.read()
                 img = cv2.resize(frame, (150,150))
-                cv2.imwrite("faces/temp.jpg", img)
+                cv2.imwrite(".csfair.tmp.jpg", img)
 
                 access, confidence = predict()
 
@@ -93,7 +93,7 @@ def predict():
     out = ()
     access = False
 
-    img = tf.keras.utils.load_img("faces/temp.jpg", target_size=(150, 150))
+    img = tf.keras.utils.load_img(".csfair.tmp.jpg", target_size=(150, 150))
 
     img_array = tf.keras.utils.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)
