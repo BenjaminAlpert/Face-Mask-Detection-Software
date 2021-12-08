@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
 
-
 CAM_INDEX=6
-
+#SCAN_BIAS="access"
+SCAN_BIAS="access"
+SCAN_BIAS_TIME=5	# Number of interations to scan for the SCAN_BIAS
 
 
 import tensorflow as tf
@@ -19,7 +20,7 @@ import time
 
 models = {}
 histories = {}
-class_names = ["Access Granted", "Access Denied", "Access Denied", "Access Denied"]
+class_names = ["Wearing Mask Correctly Over Mouth and Nose", "Over Nose, but not Over Mouth", "Under Chin", "No Mask"]
 for name in ["CNN", "MLP"]:
     model_path = "saved_models/"+name+".h5"
     history_path = "saved_histories/"+name+".json"
@@ -65,13 +66,16 @@ def take_picture():
             # SPACE pressed
             access = False
             text = "Access Denied"
-            for i in range(15):
+            for i in range(SCAN_BIAS_TIME):
                 ret, frame = cam.read()
                 img = cv2.resize(frame, (50,50))
                 cv2.imwrite("faces/temp.jpg", img)
-                access, text = predict()
-                if(access):
+                access = predict()
+                if(access and SCAN_BIAS == "access"):
                     text = "Access Granted"
+                    break
+                elif(not access and SCAN_BIAS == "deny"):
+                    text = "Access Denied"
                     break
                 else:
                     add_text(frame, "Scanning...", (int(cam.get(3)/2), int(cam.get(4)/2)), (255,255,255))
@@ -80,7 +84,7 @@ def take_picture():
                 #time.sleep(0.1)
 
             text_color = (0,0,255)
-            if(access):
+            if(access and SCAN_BIAS == "access"):
                 text_color = (0,255,0)
             add_text(frame, text, (int(cam.get(3)/2), int(cam.get(4)/2)), text_color)
             cv2.imshow("Take a Picture", frame)
@@ -103,10 +107,10 @@ def predict():
         predictions = model.predict(img_array)
         score = tf.nn.softmax(predictions[0])
 
-        print("{} predicts {} ({:.2f}% confidence)".format(name, np.argmax(score), 100 * np.max(score)))
+        print("{} predicts {} ({:.2f}% confidence)".format(name, class_names[np.argmax(score)], 100 * np.max(score)))
         if(name == "CNN"):
             out = class_names[np.argmax(score)]
             access = (np.argmax(score) == 0)
-    return access, out
+    return access
 
 take_picture()
