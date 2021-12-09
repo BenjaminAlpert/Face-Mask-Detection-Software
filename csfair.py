@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 CAM_INDEX=6
-MIN_CONFIDENCE=0.95
+MIN_CONFIDENCE=0.99
 
 
 
@@ -18,10 +18,10 @@ import time
 
 models = {}
 histories = {}
-class_names = ["Wearing Mask Correctly Over Mouth and Nose", "Over Mouth, but not Over Nose", "Not Over Mount or Nose", "No Mask"]
+class_names = ["Wearing Mask a Correctly Over Mouth and Nose", "Wearing Mask a Over Mouth, but not Over Nose", "Not Wearing a Mask Over Mount and Nose", "Not Wearing a Mask"]
 for name in ["CNN", "MLP"]:
-    model_path = "saved_models/"+name+".h5"
-    history_path = "saved_histories/"+name+".json"
+    model_path = os.path.join("saved_models", name+".h5")
+    history_path = os.path.join("saved_histories", name+".json")
     histories[name] = {}
     if(os.path.exists(model_path) and os.path.exists(history_path)):
         models[name] = tf.keras.models.load_model(model_path)
@@ -46,14 +46,14 @@ def add_text(img, text, center_pos, text_color):
 def take_picture():
     cam = cv2.VideoCapture(CAM_INDEX)
 
-    cv2.namedWindow("Take a Picture")
+    cv2.namedWindow("AI Mask Detection")
 
     while True:
         ret, frame = cam.read()
         if not ret:
             print("failed to grab frame")
             break
-        cv2.imshow("Take a Picture", frame)
+        cv2.imshow("AI Mask Detection", frame)
 
         k = cv2.waitKey(1)
         if k%256 == 27:
@@ -67,13 +67,16 @@ def take_picture():
 
             while(confidence <= MIN_CONFIDENCE):
                 ret, frame = cam.read()
+                if not ret:
+                    print("failed to grab frame")
+                    break
                 img = cv2.resize(frame, (150,150))
                 cv2.imwrite(".csfair.tmp.jpg", img)
 
                 access, confidence = predict()
 
                 add_text(frame, "Scanning...", (int(cam.get(3)/2), int(cam.get(4)/2)), (255,255,255))
-                cv2.imshow("Take a Picture", frame)
+                cv2.imshow("AI Mask Detection", frame)
                 cv2.waitKey(1)
 
             text = "Access Denied"
@@ -83,8 +86,10 @@ def take_picture():
                 text_color = (0,255,0)
 
             add_text(frame, text, (int(cam.get(3)/2), int(cam.get(4)/2)), text_color)
-            cv2.imshow("Take a Picture", frame)
+            cv2.imshow("AI Mask Detection", frame)
+            print("%s with a %.2f confidence." % (text, confidence * 100))
             cv2.waitKey(0)
+
 
     cam.release()
     cv2.destroyAllWindows()
