@@ -1,14 +1,18 @@
-// Define a model for linear regression.
+
+const start = async function(){
+	const model = await tf.loadLayersModel('/cs254a-final-project/demo/saved_models/CNN/model.json');
+}
 
 $(document).ready(function(){
 
-	const model = tf.loadLayersModel('file:///home/benjamin/workspace/academics-uvm-f21-cs254a-final-project/javascript/saved_models/CNN/model.json');
-
+	start();
 	webcam = tf.data.webcam(document.getElementById('webcam'));
 
 	$(document).keydown(function(){
-		screenShot = webcam.capture();
-		example = tf.fromPixels(screenShot);
+//		screenShot = webcam.capture();
+//		example = tf.fromPixels(screenShot);
+		webcamElement = document.getElementById('webcam');
+		example = tf.fromPixels(webcamElement);
 		prediction = model.predict(example);
 		console.log(prediction);
 	});
