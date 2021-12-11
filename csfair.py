@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
-CAM_INDEX=6
-MIN_CONFIDENCE=0.99
+MIN_CONFIDENCE=0.95
+CAM_INDEX=0
 
-
+import sys
 
 import tensorflow as tf
 from matplotlib import pyplot
@@ -14,6 +14,11 @@ import json
 
 import cv2
 import time
+
+if(len(sys.argv) > 1):
+	CAM_INDEX=int(sys.argv[1])
+
+TEMP_FILE=".csfair-"+str(CAM_INDEX)+".tmp.jpg"
 
 
 models = {}
@@ -51,9 +56,10 @@ def take_picture():
     while True:
         ret, frame = cam.read()
         if not ret:
-            print("failed to grab frame")
+            print("Failed to grab frame")
             break
-        cv2.imshow("AI Mask Detection", frame)
+        display_frame = cv2.flip(frame, 1)
+        cv2.imshow("AI Mask Detection", display_frame)
 
         k = cv2.waitKey(1)
         if k%256 == 27:
@@ -71,12 +77,13 @@ def take_picture():
                     print("failed to grab frame")
                     break
                 img = cv2.resize(frame, (150,150))
-                cv2.imwrite(".csfair.tmp.jpg", img)
+                cv2.imwrite(TEMP_FILE, img)
 
                 access, confidence = predict()
 
-                add_text(frame, "Scanning...", (int(cam.get(3)/2), int(cam.get(4)/2)), (255,255,255))
-                cv2.imshow("AI Mask Detection", frame)
+                display_frame = cv2.flip(frame, 1)
+                add_text(display_frame, "Scanning...", (int(cam.get(3)/2), int(cam.get(4)/2)), (255,255,255))
+                cv2.imshow("AI Mask Detection", display_frame)
                 cv2.waitKey(1)
 
             text = "Access Denied"
@@ -85,20 +92,23 @@ def take_picture():
                 text = "Access Granted"
                 text_color = (0,255,0)
 
-            add_text(frame, text, (int(cam.get(3)/2), int(cam.get(4)/2)), text_color)
-            cv2.imshow("AI Mask Detection", frame)
+            display_frame = cv2.flip(frame, 1)
+            add_text(display_frame, text, (int(cam.get(3)/2), int(cam.get(4)/2)), text_color)
+            cv2.imshow("AI Mask Detection", display_frame)
             print("%s with a %.2f confidence." % (text, confidence * 100))
             cv2.waitKey(0)
 
 
     cam.release()
     cv2.destroyAllWindows()
+    if os.path.exists(TEMP_FILE):
+        os.remove(TEMP_FILE)
 
 def predict():
     out = ()
     access = False
 
-    img = tf.keras.utils.load_img(".csfair.tmp.jpg", target_size=(150, 150))
+    img = tf.keras.utils.load_img(TEMP_FILE, target_size=(150, 150))
 
     img_array = tf.keras.utils.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)
