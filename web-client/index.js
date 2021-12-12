@@ -4,11 +4,9 @@ const predict = async function(model, webcam){
 	image = image.expandDims(0).toFloat();
 	console.log(image);
 	image.print();
-//	const prediction = await model.executeAsync(tfImg, ["StatefulPartitionedCall/sequential_1/sequential/random_crop/sub_1"]);
-	const prediction = await model.executeAsync(image, ["StatefulPartitionedCall/sequential_1/sequential/random_crop/sub_1", 'StatefulPartitionedCall/sequential_1/dense_2/BiasAdd/ReadVariableOp', 'Identity:0']);
+	const prediction = await model.executeAsync({"StatefulPartitionedCall/sequential_1/sequential/":image});
 	data = await prediction[2];
 	data.print();
-	console.log(d);
 	result = tf.softmax(data).argMax(-1);
 	result.print();
 }
