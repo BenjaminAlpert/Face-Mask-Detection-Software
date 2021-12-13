@@ -14,7 +14,8 @@ const predict = async function(model, webcam){
 
 const start = async function(){
 //	tf.setBackend('webgl');
-	const model = await tf.loadGraphModel('/cs254a-final-project/demo/saved_models/CNN/model.json');
+//	const model = await tf.loadGraphModel('/cs254a-final-project/demo/saved_models/graphs/CNN/model.json');
+	const model = await tf.loadLayersModel('/cs254a-final-project/demo/saved_models/layers/CNN/model.json');
 	webcamElement = document.getElementById('webcam');
 	webcam = await tf.data.webcam(webcamElement);
 
