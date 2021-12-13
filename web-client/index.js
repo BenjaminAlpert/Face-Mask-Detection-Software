@@ -2,17 +2,18 @@ const predict = async function(model, webcam){
 //	image = await webcam.capture();
 	image = tf.browser.fromPixels(webcamElement);
 	image = image.expandDims(0).toFloat();
+//	image = tf.tensor4d(Array.from(image.dataSync()),[1,150,150,3])
 	console.log(image);
 	image.print();
 	const prediction = await model.executeAsync(image);
-	data = await prediction[2];
+	data = await prediction[0];
 	data.print();
 	result = tf.softmax(data).argMax(-1);
 	result.print();
 }
 
 const start = async function(){
-	tf.setBackend('webgl');
+//	tf.setBackend('webgl');
 	const model = await tf.loadGraphModel('/cs254a-final-project/demo/saved_models/CNN/model.json');
 	webcamElement = document.getElementById('webcam');
 	webcam = await tf.data.webcam(webcamElement);
