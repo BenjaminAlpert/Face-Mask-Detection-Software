@@ -19,7 +19,6 @@ const predictAndChangeText = async function(model, webcamElement){
 	while(prediction.confidence < 0.95){
 		prediction = await predict(model, webcamElement);
 	}
-	webcamElement.pause();
 	if(prediction.result == 0){
 		$("#text").css("background-color", "black");
 		$("#text").css("color", "green");
@@ -41,20 +40,24 @@ const start = async function(){
 	webcamElement = document.getElementById('webcam');
 	webcam = await tf.data.webcam(webcamElement);
 	$("#text").text("");
+	const go = function(){
+		if(webcamElement.paused){
+			webcamElement.play();
+			$("#text").css("background-color", "transparent");
+			$("#text").text("");
+		}
+		else{
+			//predict(model, webcamElement).then(changeText);
+			predictAndChangeText(model, webcamElement);
+		}
+	}
 
 	$(document).keydown(function(e){
 		if(e.which == 32){
-			if(webcamElement.paused){
-				webcamElement.play();
-				$("#text").css("background-color", "transparent");
-				$("#text").text("");
-			}
-			else{
-				//predict(model, webcamElement).then(changeText);
-				predictAndChangeText(model, webcamElement);
-			}
+			go();
 		}
 	});
+	$(document).click(go);
 
 }
 
