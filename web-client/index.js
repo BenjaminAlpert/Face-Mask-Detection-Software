@@ -1,40 +1,59 @@
-const predict = async function(model, webcam){
-//	image = await webcam.capture();
+const predict = async function(model, webcamElement){
 	image = tf.browser.fromPixels(webcamElement);
 	image = image.expandDims(0).toFloat();
-//	image = tf.tensor4d(Array.from(image.dataSync()),[1,150,150,3])
-	console.log(image);
-	image.print();
-	const prediction = await model.executeAsync(image);
-	data = await prediction[0];
-	data.print();
-	result = tf.softmax(data).argMax(-1);
-	result.print();
+	const prediction = model.predict(image);
+	score = tf.softmax(prediction);
+	result = await score.argMax(-1).data();
+	confidence = await score.max().data();
+	out = {score:score, result:result[0], confidence:confidence[0]};
+	console.log(out);
+	return out;
+}
+
+
+const predictAndChangeText = async function(model, webcamElement){
+	$("#text").css("background-color", "black");
+	$("#text").css("color", "white");
+	$("#text").text("Scanning...");
+	prediction = await predict(model, webcamElement);
+	while(prediction.confidence < 0.95){
+		prediction = await predict(model, webcamElement);
+	}
+	webcamElement.pause();
+	if(prediction.result == 0){
+		$("#text").css("background-color", "black");
+		$("#text").css("color", "green");
+		$("#text").text("Access Granted");
+	}
+	else{
+		$("#text").css("background-color", "black");
+		$("#text").css("color", "red");
+		$("#text").text("Access Denied");
+	}
+
 }
 
 const start = async function(){
-//	tf.setBackend('webgl');
+	$("#text").text("Loading Saved Model...");
 	const model = await tf.loadGraphModel('/cs254a-final-project/demo/saved_models/graphs/CNN/model.json');
 //	const model = await tf.loadLayersModel('/cs254a-final-project/demo/saved_models/layers/CNN/model.json');
+	$("#text").text("Loading Webcam...");
 	webcamElement = document.getElementById('webcam');
 	webcam = await tf.data.webcam(webcamElement);
+	$("#text").text("");
 
-	$(document).keydown(function(){
-		predict(model, webcam);
-//		screenShot = webcam.capture();
-//		example = tf.fromPixels(screenShot);
-//		webcamElement = document.getElementById('webcam');
-//		tfImg = tf.browser.fromPixels(webcamElement);
-//		tfImg = tfImg.expandDims(0);
-//		const smalImg = tf.image.resizeBilinear(tfImg, [150, 150]);
-//		const resized = tf.cast(smalImg, 'float32');
-//		const t4d = tf.tensor4d(Array.from(resized.dataSync()),[1,150,150,3])
-//		console.log(tfImg);
-//		console.log(smalImg);
-//		console.log(resized);
-//		console.log(t4d);
-//		smalImg.print();
-//		predict(model, tfImg);
+	$(document).keydown(function(e){
+		if(e.which == 32){
+			if(webcamElement.paused){
+				webcamElement.play();
+				$("#text").css("background-color", "transparent");
+				$("#text").text("");
+			}
+			else{
+				//predict(model, webcamElement).then(changeText);
+				predictAndChangeText(model, webcamElement);
+			}
+		}
 	});
 
 }

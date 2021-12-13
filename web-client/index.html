@@ -8,8 +8,11 @@
 	</head>
 
 
-	<body>
-		<video autoplay playsinline muted id="webcam" width="150" height="150"></video>
+	<body style="margin:0;overflow:hidden;">
+		<video autoplay playsinline muted id="webcam" width="150" height="150" style="width:100vw;height:100vh;"></video>
+		<div style="font-size:3em;position:absolute;top:calc(100vh / 2);z-index:1;width:100%;text-align:center;">
+			<span id="text" >Something May Have Gone Wrong</span>
+		</div>
 		<script src="index.js"></script>
 	</body>
 </html>
