@@ -13,7 +13,8 @@ If only using data.zip above, you can skip this step.
 2. Run ```convert -resize 150x150\! input.jpg output.jpg```.
 
 # Webapp Demo
-- Click [Here](https://fs.a0-0.com/cs254a-final-project/demo/)
+- [Click Here](https://fs.a0-0.com/cs254a-final-project/demo/)
+- The Webapp Demo currently does not work on iOS or Safari. It works best Google Chrome.
 
 # Reports
 - [project-short-proposal-report](https://docs.google.com/document/d/1OWrsf4nqGVoBglW8X50DnV1j7ENZZA8nGm7nB5tf_G8/edit)
