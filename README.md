@@ -1,18 +1,17 @@
-# CS254A Final Project
+# Face Mask Detection Software
 
-
-# Instructions
+# Usage
 
 ## Training
 1. Download [data-150x150.zip](https://fs.a0-0.com/cs254a-final-project/data/data-150x150.zip) and extract it to the cloned project folder
-2. Open final-project.ipynb in Jupyter Notebook (or your favovite Interactive Python Notebook software)
+2. Open ```training.ipynb``` in Jupyter Notebook (or your favovite Interactive Python Notebook software)
 3. Run all the cells of the notebook
 
 ## Using the Real-Time Detection Software
 
 ### Python Version
 1. Be sure to complete all the steps in the training section above
-2. Run ```real-time-detection-demonstration.py```
+2. Run ```real-time-detection.py```
 
 ### Browser Version
 1. Be sure to complete all the steps in the training section above
