@@ -2,6 +2,9 @@
 
 # Usage
 
+The ```training.ipynb``` file in this repository includes output showcasing this project.
+However, if you want to attain the full model to use as a predictor, you will need to go through training process in the sections below.
+
 ## Training
 1. Download [data-150x150.zip](https://fs.a0-0.com/cs254a-final-project/data/data-150x150.zip) and extract it to the cloned project folder
 2. Open ```training.ipynb``` in Jupyter Notebook (or your favovite Interactive Python Notebook software)
